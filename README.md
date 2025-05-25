@@ -3,5 +3,5 @@
 Anggota Kelompok:
 <ol>
   <li>Arkan Hariz Chandrawinata Liem - 122140038 - ArkanHariz</li>
-  <li>Bezalel Samuel Manik - 1221400## - ID Github</li>
+  <li>Bezalel Samuel Manik - 122140140 - Manixez</li>
 </ol>
