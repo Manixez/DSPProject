@@ -43,30 +43,26 @@ def get_respiration_roi(frame, scale_x=1.5, roi_height=120, shift_y=30, draw_bah
     landmarks = result.pose_landmarks[0]
 
     # Landmark utama
-    center_0 = landmarks[0]
     left_shoulder = landmarks[11]
     right_shoulder = landmarks[12]
 
     # Koordinat bahu
     left_x = int(left_shoulder.x * width)
     right_x = int(right_shoulder.x * width)
+
     shoulder_width = abs(right_x - left_x)
     if shoulder_width < 20:
         raise ValueError("Pose gagal: bahu terlalu dekat")
 
     # Titik tengah bahu
-    center_dada_x = (left_shoulder.x + right_shoulder.x) / 2
-    center_dada_y = (left_shoulder.y + right_shoulder.y) / 2
-
-    # Gabungkan dengan titik 0
-    final_center_x = int(((center_0.x + center_dada_x) / 2) * width)
-    final_center_y = int(((center_0.y + center_dada_y) / 2) * height) + shift_y
+    center_x = int((left_shoulder.x + right_shoulder.x) / 2 * width)
+    center_y = int((left_shoulder.y + right_shoulder.y) / 2 * height) + shift_y
 
     roi_width = int(shoulder_width * scale_x)
-    left_roi = max(0, final_center_x - roi_width // 2)
-    right_roi = min(width, final_center_x + roi_width // 2)
-    top_roi = max(0, final_center_y - roi_height // 2)
-    bottom_roi = min(height, final_center_y + roi_height // 2)
+    left_roi = max(0, center_x - roi_width // 2)
+    right_roi = min(width, center_x + roi_width // 2)
+    top_roi = max(0, center_y - roi_height // 2)
+    bottom_roi = min(height, center_y + roi_height // 2)
 
     # Tampilkan titik hijau pada bahu untuk referensi
     if draw_bahu:
