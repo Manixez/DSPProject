@@ -1,47 +1,124 @@
-# Tugas Besar Digital Signal Processing (IF3024)
-# Dosen Pengampu: Martin Clinton Tosima Manullang, S.T., M.T., Ph.D.
+# 🎯 Tugas Besar Digital Signal Processing (IF3024)
 
-Anggota Kelompok:
-<ol>
-  <li>Arkan Hariz Chandrawinata Liem - 122140038 - ArkanHariz</li>
-  <li>Bezalel Samuel Manik - 122140140 - Manixez</li>
-</ol>
-<hr>
+**Dosen Pengampu**: Martin Clinton Tosima Manullang, S.T., M.T., Ph.D.
 
-# Deskripsi Project
-Proyek akhir mata kuliah "Pengolahan Sinyal Digital IF(3024)" ini memperkenalkan sebuah program inovatif untuk memperoleh sinyal respirasi dan remote-photoplethysmography (rPPG) secara real-time menggunakan input video dari webcam standar. Program ini memanfaatkan teknologi pose-landmarker MediaPipe untuk mendeteksi pergerakan bahu pengguna, yang kemudian diolah untuk mengekstraksi sinyal respirasi. Sementara itu, sinyal rPPG (yang mengindikasikan detak jantung) juga akan didapatkan dari perubahan warna kulit yang terekam oleh webcam, tanpa memerlukan kontak fisik menggunakan algoritma Plane-Orthogonal-to-Skin (POS).
-<hr>
+---
 
-# Logbook
-| Tanggal | Progress |
-|---------|----------|
-| 17 Mei 2025 | Membuat repository di Github |
-| 25 Mei 2025 | Membuat file GUI, respirasi, dan rPPG |
-| 26 Mei 2025 | Mencoba program respirasi untuk track bahu |
-| 27 Mei 2025 | Mencoba progarm respirasi kembali dan mencoba hasil disimpan dalam bentuk pdf |
-| 28 Mei 2025 | Tidak ada kegiatan progress karena mengerjakan tugas besar lain |
-| 29 Mei 2025 | Menyicil laporan yaitu mengerjakan pendahuluan |
-| 30 Mei 2025 | Progress untuk program rPPG dan respirasi serta menyicil readme dan laporan |
-| 31 Mei 2025 | Finalisasi program dan laporan |
-<hr>
+## 👨‍💻 Anggota Kelompok
+| No. | Nama                              | NIM         | Username    |
+|-----|-----------------------------------|-------------|-------------|
+| 1   | Arkan Hariz Chandrawinata Liem   | 122140038   | ArkanHariz  |
+| 2   | Bezalel Samuel Manik             | 122140140   | Manixez     |
 
-# Tools yang Digunakan
-Berikut adalah tools yang digunakan pada pengerjaan tugas besar ini:
+---
 
-| Nama Tools         | Penjelasan                                                                                  |
-|--------------------|---------------------------------------------------------------------------------------------|
-| Python             | Python digunakan dalam menulis script untuk tugas besar kali ini sebagai bahasa pemrograman |
-| Visual Studio Code | Teks editor media menulis script code sebuah program                                        |
-<hr>
+## 📘 Deskripsi Proyek
 
-# Library yang Digunakan
-| Library                        | Penjelasan                                                                             |
-|--------------------------------|----------------------------------------------------------------------------------------|
-| PyQt5 (versi 5.15.9)           | Digunakan untuk membuat antarmuka grafis (GUI) di Python                               |
-| opencv-python (versi 4.9.0.80) | Digunakan untuk pemrosesan gambar dan video, termasuk deteksi wajah dan tracking       |     
-| matplotlib (versi 3.7.1)       | Digunakan untuk membuat visualisasi data seperti grafik, histogram, dan plot           |
-| numpy (versi 1.24.3)           | Digunakan untuk operasi matematika dan array berdimensi banyak                         |
-| scipy (versi 1.10.1)           | Digunakan untuk menyediakan fungsi ilmiah dan teknik seperti integral dan sinyal       |
-| mediapipe (versi 0.10.14)      | Digunakan untuk deteksi pose, wajah, tangan, dan objek menggunakan AI secara real-time |
-<hr>
+Proyek akhir mata kuliah **Pengolahan Sinyal Digital (IF3024)** ini memperkenalkan program inovatif yang mampu mendeteksi dan menampilkan **sinyal respirasi** serta **remote photoplethysmography (rPPG)** secara real-time menggunakan input video dari **webcam standar**.
+
+### 🔹 Fitur Utama:
+- Deteksi **pernapasan** berbasis pergerakan bahu menggunakan **MediaPipe PoseLandmarker**.
+- Ekstraksi sinyal **rPPG** (detak jantung) dari perubahan warna wajah tanpa kontak fisik, menggunakan algoritma **Plane-Orthogonal-to-Skin (POS)**.
+- **Antarmuka GUI interaktif** dengan visualisasi real-time dan hasil akhir dari HR & RR.
+- Dukungan **Tkinter** dan **PyQt5** GUI (versi PyQt5 direkomendasikan untuk tampilan modern).
+
+---
+
+## 🧪 Logbook Progress
+
+| Tanggal       | Kegiatan                                                                 |
+|---------------|--------------------------------------------------------------------------|
+| 17 Mei 2025   | Membuat repository di GitHub                                             |
+| 25 Mei 2025   | Membuat file `GUI.py`, `respirasi.py`, dan `rPPG.py`                    |
+| 26 Mei 2025   | Mencoba program respirasi dan tracking bahu                             |
+| 27 Mei 2025   | Menyimpan hasil sinyal respirasi ke PDF                                 |
+| 28 Mei 2025   | Tidak ada kegiatan karena mengerjakan tugas besar lainnya               |
+| 29 Mei 2025   | Menulis Bab Pendahuluan laporan                                          |
+| 30 Mei 2025   | Menyicil laporan dan memfinalisasi fitur GUI & pengolahan sinyal        |
+| 31 Mei 2025   | Finalisasi program dan dokumentasi                                       |
+
+---
+
+## 🛠 Tools yang Digunakan
+
+| Tools              | Keterangan                                                    |
+|--------------------|---------------------------------------------------------------|
+| Python             | Bahasa pemrograman utama untuk logika program                 |
+| Visual Studio Code | Code editor yang digunakan untuk menulis dan debugging kode   |
+| GitHub             | Version control dan kolaborasi kode secara online             |
+
+---
+
+## 📦 Library yang Digunakan
+
+| Library                        | Fungsi                                                                 |
+|--------------------------------|------------------------------------------------------------------------|
+| `PyQt5==5.15.9`               | GUI modern berbasis Qt untuk Python                                    |
+| `opencv-python==4.9.0.80`     | Pemrosesan video, pengambilan frame dari webcam, deteksi objek         |
+| `matplotlib==3.7.1`           | Visualisasi sinyal dalam bentuk grafik                                 |
+| `numpy==1.24.3`               | Operasi numerik dan manajemen array                                    |
+| `scipy==1.10.1`               | Pemrosesan sinyal (filter, peak detection, dan smooth signal)          |
+| `mediapipe==0.10.14`          | Deteksi wajah dan pose tubuh secara real-time menggunakan AI           |
+
+---
+
+## 🧰 Langkah Instalasi
+
+### 1. **Clone Repository**
+```bash
+git clone https://github.com/username/nama-repo.git
+cd nama-repo
+```
+
+### 2. **Buat Virtual Environment (Direkomendasikan)**
+Gunakan Python **3.9.x** agar semua dependensi, terutama MediaPipe, kompatibel:
+```bash
+python -m venv venv
+venv\Scripts\activate         # Windows
+# atau
+source venv/bin/activate     # Mac/Linux
+```
+
+### 3. **Install Dependensi**
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 4. **Siapkan Model MediaPipe**
+Pastikan direktori `Model/` berisi:
+- `blaze_face_short_range.tflite`
+- `pose_landmarker.task`
+
+Unduh dari [MediaPipe GitHub](https://github.com/google/mediapipe) jika belum tersedia.
+
+### 5. **Jalankan Program**
+```bash
+python GUI.py     # GUI berbasis Tkinter
+# atau
+python gui_qt.py  # GUI PyQt5 modern (disarankan)
+```
+
+---
+
+## 📷 Cuplikan Program
+
+| Video & Deteksi ROI | Visualisasi HR & RR |
+|---------------------|---------------------|
+| ![video](/assets/demo_frame.png) | ![signal](/assets/signal_plot.png) |
+
+---
+
+## 📌 Catatan Tambahan
+
+- Pastikan webcam aktif dan tidak digunakan aplikasi lain.
+- Jika sinyal tidak muncul, pastikan deteksi wajah dan bahu berjalan dengan baik.
+- Program akan menampilkan **sinyal akhir lengkap** setelah tombol `Stop` ditekan.
+
+---
+
+## 📄 Lisensi
+Proyek ini ditujukan untuk keperluan **akademik** dan **pembelajaran** dalam mata kuliah IF3024.
+
+---
 
