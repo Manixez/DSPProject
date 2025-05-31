@@ -21,7 +21,8 @@ Anggota Kelompok:
 <hr>
 
 # Tools yang Digunakan
-<p>Berikut adalah tools yang digunakan pada pengerjaan tugas besar ini:</p>
+Berikut adalah tools yang digunakan pada pengerjaan tugas besar ini:
+
 | Nama Tools         | Penjelasan                                                                                  |
 |--------------------|---------------------------------------------------------------------------------------------|
 | Python             | Python digunakan dalam menulis script untuk tugas besar kali ini sebagai bahasa pemrograman |
