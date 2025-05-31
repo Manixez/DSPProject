@@ -95,17 +95,6 @@ Unduh dari [MediaPipe GitHub](https://github.com/google/mediapipe) jika belum te
 ### 5. **Jalankan Program**
 ```bash
 python GUI.py     # GUI berbasis Tkinter
-# atau
-python gui_qt.py  # GUI PyQt5 modern (disarankan)
-```
-
----
-
-## 📷 Cuplikan Program
-
-| Video & Deteksi ROI | Visualisasi HR & RR |
-|---------------------|---------------------|
-| ![video](/assets/demo_frame.png) | ![signal](/assets/signal_plot.png) |
 
 ---
 
