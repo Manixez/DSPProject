@@ -23,7 +23,7 @@ Anggota Kelompok:
 # Tools yang Digunakan
 <p>Berikut adalah tools yang digunakan pada pengerjaan tugas besar ini:</p>
 | Nama Tools | Penjelasan |
-|---------|----------|
+|------------|------------|
 | Python | Python digunakan dalam menulis script untuk tugas besar kali ini sebagai bahasa pemrograman |
 | Visual Studio Code | Teks editor media menulis script code sebuah program |
 <hr>
