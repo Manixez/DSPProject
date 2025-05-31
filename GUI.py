@@ -1,124 +1,129 @@
-import tkinter as tk
-from tkinter import ttk
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
+import sys
+import cv2
 import numpy as np
-from collections import deque
-from scipy.signal import butter, filtfilt, find_peaks
-from scipy.ndimage import uniform_filter1d
 import threading
 import time
-import cv2
-import main  # import dari file main.py
+from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget, QHBoxLayout
+from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtCore import QTimer
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from signal_processing import estimate_bpm
+import main
 
-# --- Signal Processing Functions ---
-def bandpass_filter(data, fs, lowcut, highcut, order=3):
-    b, a = butter(order, [lowcut, highcut], btype='band', fs=fs)
-    return filtfilt(b, a, data)
+class MonitorApp(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Real-Time rPPG & Respirasi Monitor")
+        self.setStyleSheet("background-color: black; color: white;")
 
-def estimate_bpm(signal, fs, lowcut, highcut):
-    filtered = bandpass_filter(signal, fs, lowcut, highcut)
-    filtered = uniform_filter1d(filtered, size=5)
-    peaks, _ = find_peaks(filtered, distance=fs//2)
-    bpm = 60 * len(peaks) / (len(filtered) / fs)
-    return bpm, filtered
-
-# --- GUI Class ---
-class MedicalMonitorGUI:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Real-time rPPG & Respirasi Monitor")
-        self.root.configure(bg='black')
-
-        # Parameters
         self.fps = 30
         self.buffer_size = 300
-        self.rppg_buffer = deque([0]*self.buffer_size, maxlen=self.buffer_size)
-        self.resp_buffer = deque([0]*self.buffer_size, maxlen=self.buffer_size)
-        self.running = False
+        self.rppg_data = []
+        self.resp_data = []
 
-        # UI Layout
-        self.setup_ui()
+        self.init_ui()
 
-        # Handle close
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_gui)
 
-        # Animation
-        self.update_plot()
+    def init_ui(self):
+        self.video_label = QLabel()
+        self.video_label.setFixedSize(640, 480)
 
-    def setup_ui(self):
-        self.fig, (self.ax1, self.ax2) = plt.subplots(2, 1, figsize=(8, 4))
-        self.fig.patch.set_facecolor('black')
+        self.hr_label = QLabel("HR: 0.0 bpm")
+        self.rr_label = QLabel("RR: 0.0 bpm")
 
-        for ax in (self.ax1, self.ax2):
-            ax.set_facecolor('black')
-            ax.set_ylim(-2, 2)
-            ax.grid(True, linestyle='--', alpha=0.3)
-            ax.tick_params(colors='white')
-            for spine in ax.spines.values():
-                spine.set_color('white')
+        self.start_btn = QPushButton("Start")
+        self.start_btn.clicked.connect(self.start_monitoring)
 
-        self.line1, = self.ax1.plot([], [], color='cyan', linewidth=2)
-        self.line2, = self.ax2.plot([], [], color='lime', linewidth=2)
-        self.text_rr = self.ax1.text(0.95, 0.85, '', transform=self.ax1.transAxes, color='white', fontsize=14, ha='right')
-        self.text_hr = self.ax2.text(0.95, 0.85, '', transform=self.ax2.transAxes, color='white', fontsize=14, ha='right')
+        self.stop_btn = QPushButton("Stop")
+        self.stop_btn.clicked.connect(self.stop_monitoring)
+        self.stop_btn.setEnabled(False)
 
-        self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
-        self.canvas.get_tk_widget().pack(padx=10, pady=10)
+        self.canvas, self.axs = plt.subplots(2, 1, figsize=(5, 3))
+        self.canvas_widget = FigureCanvas(self.canvas)
+        self.axs[0].set_title("Respirasi")
+        self.axs[1].set_title("rPPG")
 
-        control_frame = tk.Frame(self.root, bg='black')
-        control_frame.pack(pady=5)
+        btn_layout = QHBoxLayout()
+        btn_layout.addWidget(self.start_btn)
+        btn_layout.addWidget(self.stop_btn)
 
-        self.start_btn = tk.Button(control_frame, text="Start Monitoring", command=self.start_monitoring, bg='green', fg='white')
-        self.start_btn.pack(side=tk.LEFT, padx=10)
+        layout = QVBoxLayout()
+        layout.addWidget(self.video_label)
+        layout.addWidget(self.hr_label)
+        layout.addWidget(self.rr_label)
+        layout.addLayout(btn_layout)
+        layout.addWidget(self.canvas_widget)
 
-        self.stop_btn = tk.Button(control_frame, text="Stop", command=self.stop_monitoring, bg='red', fg='white', state=tk.DISABLED)
-        self.stop_btn.pack(side=tk.LEFT, padx=10)
-
-    def update_plot(self):
-        if self.running:
-            rr_bpm, rr_filtered = estimate_bpm(list(self.resp_buffer), fs=self.fps, lowcut=0.1, highcut=0.7)
-            hr_bpm, hr_filtered = estimate_bpm(list(self.rppg_buffer), fs=self.fps, lowcut=0.7, highcut=3.0)
-
-            self.line1.set_data(np.arange(len(rr_filtered)), rr_filtered)
-            self.line2.set_data(np.arange(len(hr_filtered)), hr_filtered)
-            self.text_rr.set_text(f'RR: {rr_bpm:.1f} bpm')
-            self.text_hr.set_text(f'HR: {hr_bpm:.1f} bpm')
-            self.ax1.set_xlim(0, len(rr_filtered))
-            self.ax2.set_xlim(0, len(hr_filtered))
-            self.canvas.draw()
-
-        if self.root.winfo_exists():
-            self.root.after(1000, self.update_plot)
+        self.setLayout(layout)
 
     def start_monitoring(self):
-        self.running = True
-        self.start_btn.config(state=tk.DISABLED)
-        self.stop_btn.config(state=tk.NORMAL)
+        self.start_btn.setEnabled(False)
+        self.stop_btn.setEnabled(True)
+        self.rppg_data.clear()
+        self.resp_data.clear()
         main.monitoring_active = True
         threading.Thread(target=main.run_main, daemon=True).start()
-        threading.Thread(target=self.update_from_main, daemon=True).start()
+        self.timer.start(1000 // self.fps)
 
     def stop_monitoring(self):
-        self.running = False
+        self.start_btn.setEnabled(True)
+        self.stop_btn.setEnabled(False)
         main.monitoring_active = False
-        self.start_btn.config(state=tk.NORMAL)
-        self.stop_btn.config(state=tk.DISABLED)
+        self.timer.stop()
+        self.plot_final_results()
 
-    def on_closing(self):
-        self.running = False
-        main.monitoring_active = False
-        self.root.destroy()
+    def update_gui(self):
+        frame = main.frame_display
+        if frame is not None:
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            h, w, ch = frame_rgb.shape
+            bytes_per_line = ch * w
+            qimg = QImage(frame_rgb.data, w, h, bytes_per_line, QImage.Format_RGB888)
+            self.video_label.setPixmap(QPixmap.fromImage(qimg))
 
-    def update_from_main(self):
-        while self.running:
-            if len(main.g_signal) > 0:
-                self.rppg_buffer.append(main.g_signal[-1])
-            if len(main.resp_signal) > 0:
-                self.resp_buffer.append(main.resp_signal[-1])
-            time.sleep(1 / self.fps)
+        if len(main.g_signal) > 0:
+            self.rppg_data.append(main.g_signal[-1])
+        if len(main.resp_signal) > 0:
+            self.resp_data.append(main.resp_signal[-1])
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = MedicalMonitorGUI(root)
-    root.mainloop()
+        # BPM estimation
+        hr_bpm, _ = estimate_bpm(self.rppg_data[-self.buffer_size:], self.fps, 0.7, 3.0)
+        rr_bpm, _ = estimate_bpm(self.resp_data[-self.buffer_size:], self.fps, 0.1, 0.7)
+
+        self.hr_label.setText(f"HR: {hr_bpm:.1f} bpm")
+        self.rr_label.setText(f"RR: {rr_bpm:.1f} bpm")
+
+        # Update real-time plots
+        self.axs[0].cla()
+        self.axs[0].plot(self.resp_data[-self.buffer_size:], color='cyan')
+        self.axs[0].set_title("Respirasi")
+
+        self.axs[1].cla()
+        self.axs[1].plot(self.rppg_data[-self.buffer_size:], color='lime')
+        self.axs[1].set_title("rPPG")
+
+        self.canvas.draw()
+
+    def plot_final_results(self):
+        plt.figure("Final Result")
+        plt.subplot(2, 1, 1)
+        plt.plot(self.resp_data, color='cyan')
+        final_rr, _ = estimate_bpm(self.resp_data, self.fps, 0.1, 0.7)
+        plt.title(f"Respiration Signal (RR: {final_rr:.1f} bpm)")
+
+        plt.subplot(2, 1, 2)
+        plt.plot(self.rppg_data, color='lime')
+        final_hr, _ = estimate_bpm(self.rppg_data, self.fps, 0.7, 3.0)
+        plt.title(f"rPPG Signal (HR: {final_hr:.1f} bpm)")
+
+        plt.tight_layout()
+        plt.show()
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = MonitorApp()
+    window.show()
+    sys.exit(app.exec_())

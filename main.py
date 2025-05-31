@@ -14,6 +14,7 @@ from signal_processing import estimate_bpm
 fps = 30
 buffer_len = 300
 
+rgb_buffer = deque(maxlen=buffer_len)  # Untuk POS
 r_signal = deque(maxlen=buffer_len)
 g_signal = deque(maxlen=buffer_len)
 b_signal = deque(maxlen=buffer_len)
@@ -25,21 +26,31 @@ hr = 0.0
 rr = 0.0
 monitoring_active = True
 resp_roi_coords = None
+frame_display = None  # Untuk GUI
 
 lk_params = dict(winSize=(15, 15), maxLevel=2,
                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 
+def apply_pos(rgb_matrix):
+    mean_centered = rgb_matrix - np.mean(rgb_matrix, axis=0)
+    S = np.array([[0, 1, -1], [-2, 1, 1]])
+    X = np.dot(S, mean_centered.T)
+    h = X[0] + X[1]
+    return h
+
 def update_metrics():
     global hr, rr
     while monitoring_active:
-        if len(g_signal) >= 100:
-            hr, _ = estimate_bpm(list(g_signal), fs=fps, lowcut=0.7, highcut=3.0)
+        if len(rgb_buffer) >= 100:
+            rgb_np = np.array(rgb_buffer)
+            h = apply_pos(rgb_np)
+            hr, _ = estimate_bpm(h, fs=fps, lowcut=0.7, highcut=3.0)
         if len(resp_signal) >= 100:
             rr, _ = estimate_bpm(list(resp_signal), fs=fps, lowcut=0.1, highcut=0.7)
         time.sleep(2)
 
 def run_main():
-    global features, old_gray, resp_roi_coords, monitoring_active
+    global features, old_gray, resp_roi_coords, monitoring_active, frame_display
     cap = cv2.VideoCapture(0)
     threading.Thread(target=update_metrics, daemon=True).start()
 
@@ -57,6 +68,7 @@ def run_main():
             roi, (x, y, w, h) = extract_forehead_roi(frame, result.detections[0])
             if roi.size > 0:
                 mean_rgb = cv2.mean(roi)[:3]
+                rgb_buffer.append(mean_rgb)
                 r_signal.append(mean_rgb[0])
                 g_signal.append(mean_rgb[1])
                 b_signal.append(mean_rgb[2])
@@ -93,9 +105,7 @@ def run_main():
                     features = good_new.reshape(-1, 1, 2)
                     old_gray = gray.copy()
 
-        cv2.imshow("Monitoring", frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):  # biar bisa ditutup pakai 'q'
-            break
+        frame_display = frame.copy()
 
     cap.release()
     cv2.destroyAllWindows()
