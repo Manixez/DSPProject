@@ -28,6 +28,10 @@ monitoring_active = True
 resp_roi_coords = None
 frame_display = None  # Untuk GUI
 
+# Penyimpanan penuh sinyal untuk plotting akhir
+rgb_full = []
+resp_full = []
+
 lk_params = dict(winSize=(15, 15), maxLevel=2,
                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 
@@ -69,6 +73,7 @@ def run_main():
             if roi.size > 0:
                 mean_rgb = cv2.mean(roi)[:3]
                 rgb_buffer.append(mean_rgb)
+                rgb_full.append(mean_rgb)  # Simpan ke list penuh
                 r_signal.append(mean_rgb[0])
                 g_signal.append(mean_rgb[1])
                 b_signal.append(mean_rgb[2])
@@ -102,6 +107,7 @@ def run_main():
                 if len(good_new) > 0:
                     avg_y = np.mean(good_new[:, 1])
                     resp_signal.append(avg_y)
+                    resp_full.append(avg_y)  # Simpan sinyal penuh
                     features = good_new.reshape(-1, 1, 2)
                     old_gray = gray.copy()
 
